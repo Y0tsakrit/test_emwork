@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TEMPLE BY REGION</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="temple" class="templeall">
+    <div class="header">
+      <h1 style="color: black;">TEMPLE BY REGION</h1>
+      <p style="color: black;">ค้นหาข้อมูลวัดตามภูมิภาค</p>
+    </div>
+
+    <div class="controls">
+      <label>แสดงกี่รูป:</label>
+      <select id="columnSelector">
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+        <option value="4">4</option>
+      </select>
+
+      <button onclick="toggleAutoplay()">
+        <span id="autoplayBtnText">เริ่ม Auto Slide</span>
+      </button>
+    </div>
+
+    <div id="watthai" class="wat">
+      <div class="image-wrapper">
+        <img id="imagewatthai" class="imagewatthai2" src="test.jpg" alt="ภาคเหนือ" />
+        <div class="caption">ภาคเหนือ</div>
+      </div>
+      <div class="image-wrapper">
+        <img id="imagewatthai" class="imagewatthai2" src="test.jpg" alt="ภาคกลาง" />
+        <div class="caption">ภาคกลาง</div>
+      </div>
+      <div class="image-wrapper">
+        <img id="imagewatthai" class="imagewatthai2" src="test.jpg" alt="ภาคตะวันออก" />
+        <div class="caption">ภาคตะวันออก</div>
+      </div>
+      <div class="image-wrapper">
+        <img id="imagewatthai" class="imagewatthai2" src="test.jpg" alt="ภาคตะวันตก" />
+        <div class="caption">ภาคตะวันตก</div>
+      </div>
+      <div class="image-wrapper">
+        <img id="imagewatthai" class="imagewatthai2" src="test.jpg" alt="ภาคใต้" />
+        <div class="caption">ภาคใต้</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
