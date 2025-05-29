@@ -1,0 +1,85 @@
+<div class="flex flex-col justify-center items-center p-5">
+  <div class="flex flex-row justify-center items-center gap-5 mb-4 w-full max-w-4xl">
+    <button class="bg-green-600 p-1 border-transparent rounded-xl" (click)="ADD()">เพิ่มรายการลา</button>
+    <input type="text" class="px-2 py-1 border border-gray-900 rounded-xl w-full max-w-xs" placeholder="ค้นหารายการลา จากชื่อ" [(ngModel)]="searchText">
+    <input type="date" class="px-2 py-1 border border-gray-900 rounded-xl" [(ngModel)]="startDateFilter" placeholder="วันที่เริ่มต้น">
+    <input type="date" class="px-2 py-1 border border-gray-900 rounded-xl" [(ngModel)]="endDateFilter" placeholder="วันที่สิ้นสุด">
+    <button class="bg-blue-600 p-1 border-transparent rounded-xl cursor-pointer" (click)="filterByDate()">ค้นหา</button>
+    <button class="bg-yellow-600 p-1 border-transparent rounded-xl cursor-pointer" (click)="sortLeavesByDate()">เรียงตามวันที่</button>
+  </div>
+  <div>
+    <table class="table w-full">
+      <thead>
+        <tr>
+          <th style="padding: 10px;">ชื่อ</th>
+          <th style="padding: 10px;">สังกัด/ตำแหน่ง</th>
+          <th style="padding: 10px;">อีเมล์</th>
+          <th style="padding: 10px;">เบอร์โทรศัพท์</th>
+          <th style="padding: 10px;">ประเภทการลา</th>
+          <th style="padding: 10px;">สาเหตุการลา</th>
+          <th style="padding: 10px;">วันที่ขอลา - ถึงวันที่</th>
+          <th style="padding: 10px;">วันเวลาที่บันทึกข้อมูล</th>
+          <th style="padding: 10px;">สถานะ</th>
+          <th style="padding: 10px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let leave of filteredLeaves">
+          <td style="padding: 10px;">{{ leave.name }}</td>
+          <td style="padding: 10px;">{{ leave.department }}</td>
+          <td style="padding: 10px;">{{ leave.email }}</td>
+          <td style="padding: 10px;">{{ leave.phone }}</td>
+          <td style="padding: 10px;">{{ leave.type }}</td>
+          <td style="padding: 10px;">{{ leave.reason }}</td>
+          <td style="padding: 10px;">{{ leave.startDate }} - {{ leave.endDate }}</td>
+          <td style="padding: 10px;">{{ leave.createdAt }}</td>
+          <td style="padding: 10px;">{{ leave.status }}</td>
+          <td style="padding: 10px;" class="flex flex-row gap-2">
+            <button class="bg-blue-600 p-1 border-transparent rounded-xl cursor-pointer" (click)="editLeave(leave)">แก้ไข</button>
+            <button class="bg-red-600 p-1 border-transparent rounded-xl cursor-pointer" (click)="showLeave(leave.id)">ลบ</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>  
+</div>
+
+<div *ngIf="showAdd" class="z-50 fixed inset-0 flex justify-center items-center" style="background-color: rgba(31, 41, 55, 0.5);">
+  <div class="bg-white shadow-lg p-5 rounded-xl">
+    <form (ngSubmit)="saveLeave()" class="flex flex-col">
+      <input type="text" class="mb-2 px-2 py-1 border border-gray-900 rounded-xl" placeholder="ชื่อ" [(ngModel)]="newLeave.name" name="name" required>
+      <input type="text" class="mb-2 px-2 py-1 border border-gray-900 rounded-xl" placeholder="สังกัด/ตำแหน่ง" [(ngModel)]="newLeave.department" name="department" required>
+      <input type="email" class="mb-2 px-2 py-1 border border-gray-900 rounded-xl" placeholder="อีเมล์" [(ngModel)]="newLeave.email" name="email" required>
+      <input type="text" class="mb-2 px-2 py-1 border border-gray-900 rounded-xl" placeholder="เบอร์โทรศัพท์" [(ngModel)]="newLeave.phone" name="phone" required>
+      <select class="mb-2 px-2 py-1 border border-gray-900 rounded-xl" [(ngModel)]="newLeave.type" name="type" required>
+        <option value="" disabled selected>เลือกประเภทการลา</option>
+        <option value="ลาป่วย">ลาป่วย</option>
+        <option value="ลากิจ">ลากิจ</option>
+        <option value="ลาพักร้อน">ลาพักร้อน</option>
+        <option value="อื่นๆ">อื่นๆ</option>
+      </select>
+      <textarea class="mb-2 px-2 py-1 border border-gray-900 rounded-xl" placeholder="สาเหตุการลา" [(ngModel)]="newLeave.reason" name="reason" required></textarea>
+      <input type="date" class="mb-2 px-2 py-1 border border-gray-900 rounded-xl" [(ngModel)]="newLeave.startDate" name="startDate" required>
+      <input type="date" class="mb-2 px-2 py-1 border border-gray-900 rounded-xl" [(ngModel)]="newLeave.endDate" name="endDate" required>
+      <button type="submit" class="bg-green-600 p-1 border-transparent rounded-xl">บันทึก</button>
+    </form>
+    <button class="bg-red-600 p-1 border-transparent rounded-xl" (click)="showAdd = false">ยกเลิก</button>
+  </div>
+</div>
+
+<div *ngIf="showEdit" class="z-50 fixed inset-0 flex justify-center items-center" style="background-color: rgba(31, 41, 55, 0.5);">
+  <div class="bg-white shadow-lg p-5 rounded-xl">
+    <p>ปรับสถานะการพิจารณา</p>
+    <button class="bg-gray-800 p-1 border-transparent rounded-xl" (click)="showEdit = false">ออก</button>
+    <button class="bg-red-600 p-1 border-transparent rounded-xl" (click)="approveLeave('ไม่อนุมัติ')">ไม่อนุมัติ</button>
+    <button class="bg-green-600 p-1 border-transparent rounded-xl" (click)="approveLeave('อนุมัติ')">อนุมัติ</button>
+  </div>
+</div>
+
+<div *ngIf="showDelete" class="z-50 fixed inset-0 flex justify-center items-center" style="background-color: rgba(31, 41, 55, 0.5);">
+  <div class="bg-white shadow-lg p-5 rounded-xl">
+    <p>คุณแน่ใจหรือไม่ว่าต้องการลบนี้?</p>
+    <button class="bg-gray-800 p-1 border-transparent rounded-xl" (click)="showDelete = false">ยกเลิก</button>
+    <button class="bg-red-600 p-1 border-transparent rounded-xl" (click)="deleteLeave()">ยืนยัน</button>
+  </div>
+</div>
