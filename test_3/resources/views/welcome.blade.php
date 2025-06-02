@@ -5,332 +5,284 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ระบบรายรับ-รายจ่าย</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding-top: 20px;
+
+        }
+    </style>
 </head>
 <body class="w-[80%] h-screen flex flex-col items-center gap-5 mx-auto">
-    <div class="text-2xl font-bold mb-4">ระบบรายรับ-รายจ่าย</div>
-    <div class="mb-4 flex flex-row gap-4 items-center">
-        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onclick="showAddForm()">เพิ่มรายการ</button>
-        <div class="flex items-center gap-2">
-            <label for="month-filter" class="font-medium">เลือกเดือน:</label>
-            <input type="month" id="month-filter" class="border border-gray-300 rounded-lg px-3 py-2">
-        </div>
+    <div class="text-white text-4xl">บันทึกรายรับ รายจ่าย</div>
+    <div class="text-white text-xl">Income & Expense Tracker</div>
+    <div class="flex justify-between flex-row gap-7">
+        <div id="home" class="text-black bg-white border border-transparent w-[150px] h-[75px] flex items-center justify-center text-center rounded-2xl cursor-pointer hover:-translate-y-2 transition-transform duration-300">บันทึกรายการ</div>
+        <div id="report" class="text-white bg-[#FFFFFF33] border border-transparent w-[150px] h-[75px] flex items-center justify-center text-center rounded-2xl cursor-pointer hover:-translate-y-2 transition-transform duration-300">รายงาน</div>
     </div>
-    <div class="flex justify-between flex-row gap-3">
-        <div class="flex flex-col gap-2 items-center border-green-600 border-2 w-[300px] h-[150px] rounded-lg bg-green-600">
-            <div class="text-white">รวมรายรับ</div>
-            <div id="total-income" class="text-white">0 บาท</div>
-        </div>
-        <div class="flex flex-col gap-2 items-center border-red-600 border-2 w-[300px] h-[150px] rounded-lg bg-red-600">
-            <div class="text-white">รวมรายจ่าย</div>
-            <div id="total-expense" class="text-white">0 บาท</div>
-        </div>
-        <div class="flex flex-col gap-2 items-center border-green-600 border-2 w-[300px] h-[150px] rounded-lg bg-green-600">
-            <div class="text-white">รวมรายรับ-จ่าย</div>
-            <div id="total-balance" class="text-white">0 บาท</div>
-        </div>
+    <div class="flex flex-row justify-center border border-transparent w-[400px] h-[75px] rounded-2xl bg-gray-100 items-center gap-5">
+        <div class="text-black text-lg">เลือกเดือน:</div>
+        <input id="datePicker" type="month" class="w-[200px] h-[50px] rounded-2xl text-black px-2" onchange="fetchData()">
+        <div id="refresh" class="text-2xl cursor-pointer" onclick="document.getElementById('datePicker').value = ''; fetchData();">🔄</div>
     </div>
-    <table class="w-full table-auto border-collapse border border-gray-300">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="border border-gray-300 px-4 py-2">ประเภท</th>
-                <th class="border border-gray-300 px-4 py-2">ชื่อรายการ</th>
-                <th class="border border-gray-300 px-4 py-2">จำนวนเงิน</th>
-                <th class="border border-gray-300 px-4 py-2">วันที่จ่าย</th>
-                <th class="border border-gray-300 px-4 py-2">บันทึกเมื่อ</th>
-                <th class="border border-gray-300 px-4 py-2">แก้ไขเมื่อ</th>
-                <th class="border border-gray-300 px-4 py-2"></th>
-                <th class="border border-gray-300 px-4 py-2"></th>
-            </tr>
-        </thead>
-        <tbody id="data-table" class="text-sm">
-        </tbody>
-    </table>
-
-    <div id="modal" class="fixed inset-0 flex justify-center items-center bg-gray-900 z-50" style="background-color: rgba(0, 0, 0, 0.5); display: none;">
-        <div class="bg-white w-[700px] h-[400px] rounded-xl p-6">
-            <h3 class="text-xl font-bold mb-4">เพิ่มรายการใหม่</h3>
-            <form id="account-form" class="flex flex-col gap-4">
-                <select id="accType" name="accType" class="text-lg font-bold p-3 w-[150px] border border-gray-300 rounded-lg" required>
-                    <option value="รายรับ">รายรับ</option>
-                    <option value="รายจ่าย">รายจ่าย</option>
-                </select>
-                <input id="accName" name="accName" type="text" placeholder="ชื่อรายการ" class="border border-gray-300 rounded-lg px-3 py-2 w-full" required>
-                <input id="accAmount" name="accAmount" type="number" step="0.01" placeholder="จำนวนเงิน" class="border border-gray-300 rounded-lg px-3 py-2 w-full" required>
-                <input id="accDate" name="accDate" type="date" class="border border-gray-300 rounded-lg px-3 py-2 w-full" required>
-                <div class="flex flex-row justify-end mt-7 gap-5">
-                    <button type="button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="hideAddForm()">ยกเลิก</button>
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">บันทึก</button>
+    <div class="flex flex-col items-center py-5 px-12 gap-5 w-[1300px] h-fit bg-gray-100 rounded-2xl">
+        <div class=" bg-gray-200 h-fit w-full items-center rounded-2xl p-5">
+            <form class="flex flex-col gap-5" onsubmit="handleSubmit(event)">
+                <div class="flex justify-center text-2xl">เพิ่มรายการใหม่</div>
+                <div class="flex flex-row items-center gap-5 py-2">
+                    <div class="flex flex-col gap-2 w-[50%]">
+                        <label for="type" class="text-black text-lg">ประเภท:</label>
+                        <select id="type" class="w-full h-[50px] rounded-2xl text-black px-2">
+                            <option value="รายรับ">รายรับ</option>
+                            <option value="รายจ่าย">รายจ่าย</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-2 w-[50%]">
+                        <label for="amount" class="text-black text-lg">จำนวน:</label>
+                        <input id="amount" type="text" class="w-full h-[50px] rounded-2xl text-black px-2" placeholder="จำนวนเงิน">
+                    </div>
                 </div>
+                <div class="flex flex-row items-center gap-5 py-2">
+                    <div class="flex flex-col gap-2 w-[50%]">
+                        <label for="date" class="text-black text-lg">วันที่:</label>
+                        <input id="date" type="date" class="w-full h-[50px] rounded-2xl text-black px-2" value="{{ date('Y-m-d') }}">
+                    </div>
+                    <div class="flex flex-col gap-2 w-[50%]">
+                        <label for="description" class="text-black text-lg">รายละเอียด:</label>
+                        <input id="description" type="text" class="w-full h-[50px] rounded-2xl text-black px-2" placeholder="รายละเอียดเพิ่มเติม">
+                    </div>
+                </div>
+                <button id="submit" type="submit" class="w-[100px] h-[50px] bg-[#764ba2] text-white rounded-2xl flex items-center justify-center mx-auto hover:-translate-y-2 transition-transform duration-300">บันทึก</button>
             </form>
         </div>
+        <table id="dataTable" class="w-full text-center border-collapse overflow-hidden bg-white shadow-lg rounded-2xl">
+            <thead>
+                <tr>
+                    <th class="py-3 px-4 bg-[#764ba2] text-white border-r border-white">วันที่</th>
+                    <th class="py-3 px-4 bg-[#764ba2] text-white border-r border-white">ประเภท</th>
+                    <th class="py-3 px-4 bg-[#764ba2] text-white border-r border-white">จำนวน</th>
+                    <th class="py-3 px-4 bg-[#764ba2] text-white border-r border-white">รายละเอียด</th>
+                    <th class="py-3 px-4 bg-[#764ba2] text-white border-r border-white">แก้ไข</th>
+                    <th class="py-3 px-4 bg-[#764ba2] text-white border-r border-white">ลบ</th>
+                </tr>
+            </thead>
+            <tbody id="dataBody" class="text-black">
+                <!-- Data  -->
+            </tbody>
+        </table>
     </div>
 
-        <div id="edit-modal" class="fixed inset-0 flex justify-center items-center bg-gray-900 z-50" style="background-color: rgba(0, 0, 0, 0.5); display: none;">
-        <div class="bg-white w-[700px] h-[400px] rounded-xl p-6">
-            <h3 class="text-xl font-bold mb-4">แก้ไขรายการ</h3>
-            <form id="edit-account-form" class="flex flex-col gap-4" onsubmit="handleEditSubmit(event)">
-                <input id="edit-accId" name="id" type="hidden">
-                <select id="edit-accType" name="accType" class="text-lg font-bold p-3 w-[150px] border border-gray-300 rounded-lg" required>
-                    <option value="รายรับ">รายรับ</option>
-                    <option value="รายจ่าย">รายจ่าย</option>
-                </select>
-                <input id="edit-accName" name="accName" type="text" placeholder="ชื่อรายการ" class="border border-gray-300 rounded-lg px-3 py-2 w-full" required>
-                <input id="edit-accAmount" name="accAmount" type="number" step="0.01" placeholder="จำนวนเงิน" class="border border-gray-300 rounded-lg px-3 py-2 w-full" required>
-                <input id="edit-accDate" name="accDate" type="date" class="border border-gray-300 rounded-lg px-3 py-2 w-full" required>
-                <div class="flex flex-row justify-end mt-7 gap-5">
-                    <button type="button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="hideEditForm()">ยกเลิก</button>
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">บันทึก</button>
+    <div class="fixed inset-0 w-screen h-screen z-[1000] justify-center items-center" style="background-color: rgba(17, 24, 39, 0.8); display: none;" id="editFormContainer">
+        <form class="flex flex-col gap-5 bg-gray-100 p-5 rounded-2xl w-[70%]" onsubmit="handleEdit(event)">
+            <div class="flex justify-center text-2xl">แก้ไขรายการ</div>
+            <input type="hidden" id="editId">
+            <div class="flex flex-row items-center gap-5 py-2">
+                <div class="flex flex-col gap-2 w-[50%]">
+                    <label for="editType" class="text-black text-lg">ประเภท:</label>
+                    <select id="editType" class="w-full h-[50px] rounded-2xl text-black px-2">
+                        <option value="รายรับ">รายรับ</option>
+                        <option value="รายจ่าย">รายจ่าย</option>
+                    </select>
                 </div>
-            </form>
-        </div>
+                <div class="flex flex-col gap-2 w-[50%]">
+                    <label for="editAmount" class="text-black text-lg">จำนวน:</label>
+                    <input id="editAmount" type="text" class="w-full h-[50px] rounded-2xl text-black px-2" placeholder="จำนวนเงิน">
+                </div>
+            </div>
+            <div class="flex flex-row items-center gap-5 py-2">
+                <div class="flex flex-col gap-2 w-[50%]">
+                    <label for="editDate" class="text-black text-lg">วันที่:</label>
+                    <input id="editDate" type="date" class="w-full h-[50px] rounded-2xl text-black px-2" value="{{ date('Y-m-d') }}">
+                </div>
+                <div class="flex flex-col gap-2 w-[50%]">
+                    <label for="editDescription" class="text-black text-lg">รายละเอียด:</label>
+                    <input id="editDescription" type="text" class="w-full h-[50px] rounded-2xl text-black px-2" placeholder="รายละเอียดเพิ่มเติม">
+                </div>
+            </div>
+            <button id="submit" type="submit" class="w-[100px] h-[50px] bg-[#764ba2] text-white rounded-2xl flex items-center justify-center mx-auto hover:-translate-y-2 transition-transform duration-300">บันทึก</button>
+        </form>
     </div>
+
 </body>
 </html>
 
+
+
 <script>
-    // Set default month filter to the current month when the page loads
-    document.addEventListener('DOMContentLoaded', () => {
-        const today = new Date();
-        const year = today.getFullYear();
-        // Month is 0-indexed, so add 1 and pad with '0' for single digits
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        // Set the value of the month input to YYYY-MM format
-        document.getElementById('month-filter').value = `${year}-${month}`;
-        fetchData(); // Fetch data for the current month immediately
-    });
+    const init = () => {
+        const home = document.getElementById('home');
+        const report = document.getElementById('report');
+        const url = window.location.href;
 
-    // Add an event listener to the month filter to refetch data when it changes
-    document.getElementById('month-filter').addEventListener('change', fetchData);
-
-    async function fetchData() {
-        try {
-            // Get the selected month from the input (e.g., "2025-05")
-            const selectedMonth = document.getElementById('month-filter').value;
-            let apiUrl = '/api/accounts';
-
-            // If a month is selected, append it as a query parameter
-            if (selectedMonth) {
-                apiUrl += `?month=${selectedMonth}`;
+        console.log((url.split('/'))[3]);
+        try{
+            if((url.split('/'))[3] == 'report'){
+                report.style.backgroundColor = '#FFFFFF';
+                report.style.color = '#000000';
+                home.style.backgroundColor = '#FFFFFF33';
+                home.style.color = '#FFFFFF';
             }
-
-            const response = await fetch(apiUrl);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('Data received:', data);
-
-            let income = 0;
-            let expense = 0;
-            const tableBody = document.getElementById('data-table');
-            tableBody.innerHTML = ''; // Clear existing table rows
-
-            data.forEach(account => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="border border-gray-300 px-4 py-2 text-center">${account.accType || ''}</td>
-                    <td class="border border-gray-300 px-4 py-2 text-center">${account.accName || ''}</td>
-                    <td class="border border-gray-300 px-4 py-2 text-center">${account.accAmount || 0}</td>
-                    <td class="border border-gray-300 px-4 py-2 text-center">${account.accDate || ''}</td>
-                    <td class="border border-gray-300 px-4 py-2 text-center">${account.created_at ? new Date(account.created_at).toLocaleString() : ''}</td>
-                    <td class="border border-gray-300 px-4 py-2 text-center">${account.updated_at ? new Date(account.updated_at).toLocaleString() : ''}</td>
-                    <td class="border border-gray-300 px-4 py-2 text-center">
-                        <button class="text-blue-500 hover:text-blue-700" onclick="showEditForm(${account.id},'${account.accType}', '${account.accName}', ${account.accAmount}, '${account.accDate}')">แก้ไข</button>
-                    </td>
-                    <td class="border border-gray-300 px-4 py-2 text-center">
-                        <button class="text-red-500 hover:text-red-700" onclick="deleteAccount(${account.id})">ลบ</button>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-
-                if (account.accType === 'รายรับ') {
-                    income += parseFloat(account.accAmount) || 0;
-                } else if (account.accType === 'รายจ่าย') {
-                    expense += parseFloat(account.accAmount) || 0;
-                }
-            });
-
-            // Update total summary cards with filtered data
-            document.getElementById('total-income').innerText = income.toFixed(2) + ' บาท';
-            document.getElementById('total-expense').innerText = expense.toFixed(2) + ' บาท';
-            document.getElementById('total-balance').innerText = (income - expense).toFixed(2) + ' บาท';
-
-        } catch (error) {
-            alert('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + error.message);
+        }catch(e){
+            home.style.backgroundColor = '#FFFFFF';
+            home.style.color = '#000000';
+            report.style.backgroundColor = '#FFFFFF33';
+            report.style.color = '#FFFFFF';
         }
     }
 
-    async function addAccount(account) {
-        try {
-            console.log('Adding account:', account);
+    init();
 
-            const response = await fetch('/api/accounts', {
+    const home = document.getElementById('home');
+    const report = document.getElementById('report');
+    home.addEventListener('click', () => {
+        window.location.href = '/';
+    });
+    report.addEventListener('click', () => {
+        window.location.href = '/report';
+    });
+
+    const formatDate = (date) => {
+        const d = new Date(date);
+        return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+    };
+
+    const fetchData = () => {
+
+        const datePicker = document.getElementById('datePicker');
+        let url = '';
+        if (datePicker.value) {
+            const selectedDate = datePicker.value;
+            url = "?month="+selectedDate;
+        }
+        fetch(`api/accounts${url}`)
+            .then(response => response.json())
+            .then(data => {
+                const dataBody = document.getElementById('dataBody');
+                dataBody.innerHTML = '';
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="py-3 px-4 border-b border-gray-200">${item.accType}</td>
+                        <td class="py-3 px-4 border-b border-gray-200">${formatDate(item.accDate)}</td>
+                        <td class="py-3 px-4 border-b border-gray-200">${item.accAmount}</td>
+                        <td class="py-3 px-4 border-b border-gray-200">${item.accName}</td>
+                        <td class="py-3 px-4 border-b border-gray-200">
+                            <button class="text-blue-500" onclick="showEditForm(${item.id}, '${item.accType}', ${item.accAmount}, '${item.accDate}', '${item.accName}')">🛠️</button>
+                        </td>
+                        <td class="py-3 px-4 border-b border-gray-200">
+                            <button class="text-red-500 " onclick="deleteItem(${item.id})">❌</button>
+                        </td>
+                    `;
+                    dataBody.appendChild(row);
+                });
+            });
+    };
+
+
+
+    fetchData();
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const type = document.getElementById('type').value;
+        const amount = parseFloat(document.getElementById('amount').value);
+        console.log(type, amount);
+        const date = document.getElementById('date').value;
+        const description = document.getElementById('description').value;
+
+        console.log(type, amount, date, description);
+        if (!amount || !date) {
+            alert('กรุณากรอกจำนวนและวันที่');
+            return;
+        }
+
+        try{
+            const response = await fetch('api/accounts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
                 },
-                body: JSON.stringify(account),
+                body: JSON.stringify({
+                    accType: type,
+                    accAmount: amount,
+                    accDate: date,
+                    accName: description,
+                }),
             });
-
-            console.log('Response status:', response.status);
-
-            if (response.ok) {
-                const result = await response.json();
-                console.log('Account added successfully:', result);
-                await fetchData(); // Re-fetch data to update the table with the new entry
-                hideAddForm();
-                resetForm();
-                alert('บันทึกข้อมูลเรียบร้อย');
-            } else {
-                const errorText = await response.text();
-                console.error('Error response:', errorText);
-                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + errorText);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
+            const data = await response.json();
+            alert('บันทึกสำเร็จ');
+            fetchData();
         } catch (error) {
-            console.error('Network error:', error);
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error.message);
+            alert('There was a problem with the fetch operation:', error.message);
         }
-    }
+    };
 
-    function handleEditSubmit(event) {
-        event.preventDefault();
-        const form = document.getElementById('edit-account-form');
-        const formData = new FormData(form);
+    const deleteItem = async (id) => {
+        if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?')) return;
 
-        const account = {
-            id: formData.get('id'),
-            accType: formData.get('accType'),
-            accName: formData.get('accName').trim(),
-            accAmount: parseFloat(formData.get('accAmount')),
-            accDate: formData.get('accDate'),
-        };
-
-        console.log('Account data:', account);
-        editAccount(account);
-    }
-
-    function handleFormSubmit(event) {
-        event.preventDefault();
-        console.log('Form submitted');
-
-        const form = document.getElementById('account-form');
-        const formData = new FormData(form);
-
-        const account = {
-            accType: formData.get('accType'),
-            accName: formData.get('accName').trim(),
-            accAmount: parseFloat(formData.get('accAmount')),
-            accDate: formData.get('accDate'),
-        };
-
-        if (!account.accName) {
-            alert('กรุณากรอกชื่อรายการ');
-            return;
-        }
-
-        if (isNaN(account.accAmount) || account.accAmount <= 0) {
-            alert('กรุณากรอกจำนวนเงินที่ถูกต้อง');
-            return;
-        }
-
-        if (!account.accDate) {
-            alert('กรุณาเลือกวันที่');
-            return;
-        }
-
-        addAccount(account);
-    }
-
-    function showAddForm() {
-        console.log('Showing add form');
-        document.getElementById('modal').style.display = 'flex';
-    }
-
-    function hideAddForm() {
-        console.log('Hiding add form');
-        document.getElementById('modal').style.display = 'none';
-    }
-
-    function resetForm() {
-        document.getElementById('account-form').reset();
-    }
-
-    function editAccount(account) {
-        console.log('Editing account:', account.id);
-        fetch(`/api/accounts/${account.id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify(account),
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Failed to edit account');
+        try {
+            const response = await fetch(`api/accounts/${id}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
-        })
-        .then(result => {
-            console.log('Account edited successfully:', result);
-            hideEditForm();
-            fetchData(); // Re-fetch data to update the table after editing
-            alert('แก้ไขข้อมูลเรียบร้อย');
-        })
-        .catch(error => {
-            console.error('Error editing account:', error);
-            alert('เกิดข้อผิดพลาดในการแก้ไขข้อมูล: ' + error.message);
-        });
-    }
-
-    // Ensure the form submission for adding accounts is handled
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('account-form');
-        if (form) {
-            form.addEventListener('submit', handleFormSubmit);
+            alert('ลบรายการสำเร็จ');
+            fetchData();
+        } catch (error) {
+            alert('There was a problem with the fetch operation:', error.message);
         }
-    });
+};
 
-    function showEditForm(accId, accType, accName, accAmount, accDate) {
-        // The date from the backend might include time, so we split it to get just "YYYY-MM-DD"
-        const formattedDate = accDate.split('T')[0];
-        document.getElementById('edit-accId').value = accId;
-        document.getElementById('edit-modal').style.display = 'flex';
-        document.getElementById('edit-accType').value = accType;
-        document.getElementById('edit-accName').value = accName;
-        document.getElementById('edit-accAmount').value = accAmount;
-        document.getElementById('edit-accDate').value = formattedDate;
-    }
+    const showEditForm = (id, type, amount, date, description) => {
+        const editFormContainer = document.getElementById('editFormContainer');
+        editFormContainer.style.display = 'flex';
+        console.log(id, type, amount, date, description);
+        document.getElementById('editId').value = id;
+        document.getElementById('editType').value = type;
+        document.getElementById('editAmount').value = amount;
+        document.getElementById('editDate').value = date.split('T')[0]; 
+        document.getElementById('editDescription').value = description;
+    };
 
-    function hideEditForm() {
-        document.getElementById('edit-modal').style.display = 'none';
-    }
+    const handleEdit = async (event) => {
+        event.preventDefault();
+        const id = document.getElementById('editId').value;
+        const type = document.getElementById('editType').value;
+        const amount = parseFloat(document.getElementById('editAmount').value);
+        const date = document.getElementById('editDate').value;
+        const description = document.getElementById('editDescription').value;
 
-    async function deleteAccount(id){
-        if (!confirm('คุณแน่ใจว่าต้องการลบรายการนี้หรือไม่?')) {
-            return; // Stop if the user cancels
+        if (!amount || !date) {
+            alert('กรุณากรอกจำนวนและวันที่');
+            return;
         }
-        const response = await fetch(`/api/accounts/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-        });
-        if (response.ok) {
-            const result = await response.json();
-            console.log('Account deleted successfully:', result);
-            await fetchData(); // Re-fetch data to update the table after deletion
-            alert('ลบข้อมูลเรียบร้อย');
-        } else {
-            const errorText = await response.text();
-            console.error('Error response:', errorText);
-            alert('เกิดข้อผิดพลาดในการลบข้อมูล: ' + errorText);
+
+        try {
+            const response = await fetch(`api/accounts/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    accType: type,
+                    accAmount: amount,
+                    accDate: date,
+                    accName: description,
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            alert('แก้ไขรายการสำเร็จ');
+            fetchData();
+            document.getElementById('editFormContainer').style.display = 'none';
+        } catch (error) {
+            alert('There was a problem with the fetch operation:', error.message);
         }
-    }
+    };
 
 </script>

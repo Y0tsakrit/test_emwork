@@ -9,28 +9,27 @@ class AccountController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Account::query(); // Start with a base query for the Account model
+        $query = Account::query(); 
 
-        // Check if a 'month' query parameter is present (e.g., ?month=2025-05)
         if ($request->has('month')) {
-            $monthYear = $request->input('month'); // Get the "YYYY-MM" string
-
+            $monthYear = $request->input('month'); 
             // Validate the format to prevent unexpected behavior
             if (preg_match('/^\d{4}-\d{2}$/', $monthYear)) {
                 $year = substr($monthYear, 0, 4);
                 $month = substr($monthYear, 5, 2);
 
-                // Filter accounts where the 'accDate' falls within the specified year and month
+
                 $query->whereYear('accDate', $year)
                       ->whereMonth('accDate', $month);
             } else {
                 return response()->json([
                     'message' => 'Invalid month format. Expected format: YYYY-MM',
+                    'error' => $monthYear,
                 ], 400);
             }
         }
 
-        // Order the results, for example, by accDate in descending order
+
         $accounts = $query->orderBy('accDate', 'desc')->get();
 
         return response()->json($accounts);
